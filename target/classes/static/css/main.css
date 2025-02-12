@@ -1,0 +1,66 @@
+body {
+  background-color: #f4f7fc;
+  padding-top: 20px;
+}
+/* Make the body fill the entire height of the screen */
+html, body {
+  height: 100%;
+}
+
+/* Make the main content area flexible and fill the available space */
+.content {
+  flex-grow: 1;
+}
+
+/* Footer styling */
+footer {
+  background-color: #1a252f;  /* Dark blue-gray color for footer */
+  color: white;
+  padding: 20px;
+  text-align: center;
+  border-top: 1px solid #ddd;
+}
+footer a {
+  text-decoration: none;
+  color: #00bcd4;  /* Lighter blue for links */
+  margin: 0 10px;
+}
+footer a:hover {
+  text-decoration: underline;
+}
+footer i {
+  margin-right: 5px;  /* Space between icon and text */
+}
+.card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: border 0.3s ease;
+}
+
+.card-body {
+  background-color: #ffffff;
+  border-radius: 8px;
+  flex-grow: 1;
+}
+
+.card-header {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+h1, h3 {
+  color: #000; /* #333; */
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+/* Hover effect */
+.card:hover {
+  border: 2px solid #007bff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.row {
+  gap: 20px; /* Add gap between rows */
+}
