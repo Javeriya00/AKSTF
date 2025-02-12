@@ -11,6 +11,7 @@ env:
   CLUSTER_NAME: my-aks-cluster
   HELM_RELEASE_NAME: my-app
   DOCKER_IMAGE: javeriyasdocker/aksdemo:latest
+  ARM_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
 
 jobs:
   login:
@@ -69,5 +70,6 @@ jobs:
         run: |
           cd terraform
           terraform init
-          terraform apply -auto-approve
+          terraform apply -var "subscription_id=$ARM_SUBSCRIPTION_ID" -auto-approve
+
 
