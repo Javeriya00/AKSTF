@@ -24,3 +24,18 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 }
 
+resource "azuread_application" "gha_app" {
+  display_name = "GitHub-OIDC"
+}
+
+resource "azuread_service_principal" "gha_sp" {
+  client_id = azuread_application.gha_app.client_id
+}
+
+resource "azuread_application_federated_identity_credential" "gha_oidc" {
+  application_object_id = azuread_application.gha_app.object_id
+  display_name          = "GitHub-OIDC"
+  issuer               = "https://token.actions.githubusercontent.com"
+  subject              = "repo:Javeriya00/AKSTF:ref:refs/heads/main"
+  audiences            = ["api://AzureADTokenExchange"]
+}
