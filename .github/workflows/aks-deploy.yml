@@ -1,13 +1,9 @@
-name: Deploy AKS with Terraform and Helm
+name: Deploy to AKS
 
 on:
   push:
     branches:
       - main
-
-permissions:
-  contents: read
-  id-token: write
 
 env:
   AZURE_REGION: eastus
@@ -17,57 +13,52 @@ env:
   DOCKER_IMAGE: javeriyasdocker/aksdemo:latest
 
 jobs:
-  provision-infra:
+  login:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Azure Login
+      - name: Azure Login (Manual - For Debugging Only)
+        if: true  # Change to true if you want manual login
+        run: az login --use-device-code
+
+      - name: Azure Login (Service Principal)
+        if: env.AZURE_CLIENT_ID != ''
         uses: azure/login@v1
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           auth-type: SERVICE_PRINCIPAL
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+      - name: Azure Login (OIDC - If Federated Identity is Set Up)
+        if: env.AZURE_CLIENT_ID != '' && env.AZURE_TENANT_ID != '' && env.AZURE_SUBSCRIPTION_ID != ''
+        uses: azure/login@v1
         with:
-          terraform_version: latest
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          auth-type: OIDC
+          
+      - name: Set Subscription
+        run: az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+  deploy:
+    needs: login
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Terraform
+        run: |
+          sudo apt-get update && sudo apt-get install -y unzip
+          curl -fsSL https://releases.hashicorp.com/terraform/1.5.7/terraform_1.5.7_linux_amd64.zip -o terraform.zip
+          unzip terraform.zip && sudo mv terraform /usr/local/bin/
 
       - name: Initialize Terraform
         run: terraform init
 
-      - name: Apply Terraform
+      - name: Apply Terraform Configuration
         run: terraform apply -auto-approve
-
-  deploy:
-    needs: provision-infra
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          auth-type: SERVICE_PRINCIPAL
-
-      - name: Get AKS Credentials
-        run: |
-          az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.CLUSTER_NAME }}
-
-      - name: Install Helm
-        run: |
-          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-
-      - name: Deploy to AKS using Helm
-        run: |
-          helm upgrade --install ${{ env.HELM_RELEASE_NAME }} ./helm-chart \
-            --set image.repository=${{ env.DOCKER_IMAGE }}
