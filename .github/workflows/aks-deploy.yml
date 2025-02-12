@@ -53,9 +53,17 @@ jobs:
 
       - name: Install Terraform
         run: |
-          sudo apt-get update && sudo apt-get install -y unzip
-          curl -fsSL https://releases.hashicorp.com/terraform/1.5.7/terraform_1.5.7_linux_amd64.zip -o terraform.zip
-          unzip terraform.zip && sudo mv terraform /usr/local/bin/
+          sudo apt-get update && sudo apt-get install -y unzip curl
+          curl -L -o terraform.zip https://releases.hashicorp.com/terraform/1.5.7/terraform_1.5.7_linux_amd64.zip
+          ls -lah terraform.zip  # Check if the file was downloaded
+          unzip terraform.zip || (echo "Failed to unzip. File may be corrupt." && exit 1)
+          sudo mv terraform /usr/local/bin/
+          terraform --version  # Verify installation
+# - name: Install Terraform
+#         run: |
+#           sudo apt-get update && sudo apt-get install -y unzip
+#           curl -fsSL https://releases.hashicorp.com/terraform/1.5.7/terraform_1.5.7_linux_amd64.zip -o terraform.zip
+#           unzip terraform.zip && sudo mv terraform /usr/local/bin/
 
       - name: Initialize Terraform
         run: terraform init
