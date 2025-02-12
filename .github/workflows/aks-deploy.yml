@@ -59,8 +59,15 @@ jobs:
       - name: Verify Terraform Installation
         run: terraform version
 
-      - name: Initialize Terraform
-        run: terraform init
+      # - name: Initialize Terraform
+      #   run: terraform init
 
-      - name: Apply Terraform Configuration
-        run: terraform apply -auto-approve
+      # - name: Apply Terraform Configuration
+      #   run: terraform apply -auto-approve
+        
+      - name: Initialize & Apply Terraform
+        run: |
+          cd terraform
+          terraform init
+          terraform apply -auto-approve
+
