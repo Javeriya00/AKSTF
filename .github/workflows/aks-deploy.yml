@@ -14,7 +14,7 @@ env:
   RESOURCE_GROUP: my-aks-resource-group
   CLUSTER_NAME: my-aks-cluster
   HELM_RELEASE_NAME: my-app
-  DOCKER_IMAGE: your-dockerhub-username/your-image:latest
+  DOCKER_IMAGE: javeriyasdocker/aksdemo:latest
 
 jobs:
   provision-infra:
