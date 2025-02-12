@@ -1,6 +1,10 @@
 provider "azurerm" {
   features {}
+
+  subscription_id = var.subscription_id
 }
+
+variable "subscription_id" {}
 
 resource "azurerm_resource_group" "aks_rg" {
   name     = "my-aks-resource-group"
